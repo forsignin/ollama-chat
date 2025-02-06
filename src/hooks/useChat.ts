@@ -134,6 +134,10 @@ export const useChat = () => {
     // 保存当前消息用于重发
     lastMessageRef.current = content;
 
+    // 获取当前对话的历史消息
+    const currentChat = getCurrentChat();
+    const historyMessages = currentChat?.messages || [];
+
     // 添加用户消息
     addMessage({ content, role: 'user' });
 
@@ -147,10 +151,6 @@ export const useChat = () => {
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }
-
-      // 获取当前对话的历史消息
-      const currentChat = getCurrentChat();
-      const historyMessages = currentChat?.messages.slice(0, -2) || []; // 不包括刚刚添加的两条消息
 
       abortControllerRef.current = new AbortController();
       const response = await ollamaApi.generate(content, currentModel, historyMessages);
@@ -170,30 +170,39 @@ export const useChat = () => {
         const lines = chunk.split('\n').filter(Boolean);
         
         for (const line of lines) {
-          const data = JSON.parse(line);
-          fullResponse += data.response;
-          
-          setState((prev) => ({
-            ...prev,
-            chats: prev.chats.map(chat => {
-              if (chat.id === prev.currentChatId) {
-                return {
-                  ...chat,
-                  messages: chat.messages.map(msg =>
-                    msg.id === assistantMessage.id
-                      ? { ...msg, content: fullResponse }
-                      : msg
-                  ),
-                };
-              }
-              return chat;
-            }),
-          }));
+          try {
+            const data = JSON.parse(line);
+            // 处理chat接口的响应格式
+            if (data.message?.content) {
+              fullResponse += data.message.content;
+            } else if (data.content) {
+              fullResponse += data.content;
+            }
+            
+            setState((prev) => ({
+              ...prev,
+              chats: prev.chats.map(chat => {
+                if (chat.id === prev.currentChatId) {
+                  return {
+                    ...chat,
+                    messages: chat.messages.map(msg =>
+                      msg.id === assistantMessage.id
+                        ? { ...msg, content: fullResponse }
+                        : msg
+                    ),
+                  };
+                }
+                return chat;
+              }),
+            }));
+          } catch (e) {
+            console.error('Error parsing response:', e);
+          }
         }
       }
     } catch (error) {
       // 如果是中断请求，不显示错误
-      if (error.name === 'AbortError') return;
+      if (error instanceof Error && error.name === 'AbortError') return;
 
       setState((prev) => ({
         ...prev,

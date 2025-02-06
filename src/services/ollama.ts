@@ -5,18 +5,26 @@ const BASE_URL = 'http://localhost:11434';
 
 export const ollamaApi = {
   generate: async (prompt: string, model: string, messages: Message[] = []): Promise<Response> => {
-    const request: OllamaRequest = {
+    // 构建完整的消息列表，包括当前消息
+    const formattedMessages = [
+      ...messages.map(msg => ({
+        role: msg.role,
+        content: msg.content.replace(/<think>.*?<\/think>/g, '').trim(),
+      })),
+      {
+        role: 'user' as const,
+        content: prompt.trim(),
+      }
+    ];
+
+    const request = {
       model,
-      prompt,
+      messages: formattedMessages,
       stream: true,
       temperature: 0.7,
-      messages: messages.map(msg => ({
-        role: msg.role,
-        content: msg.content,
-      })),
     };
 
-    return fetch(`${BASE_URL}/api/generate`, {
+    return fetch(`${BASE_URL}/api/chat`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

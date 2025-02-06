@@ -33,7 +33,11 @@ export interface OllamaRequest {
   top_p?: number;       // 控制词汇选择的多样性 (0-1)
   top_k?: number;       // 控制每一步可以选择的词汇数量
   context?: number[];   // 上下文窗口
-  messages?: { role: 'user' | 'assistant', content: string }[]; // 历史消息
+  messages: { 
+    role: 'user' | 'assistant';
+    content: string;
+    images?: string[];  // base64编码的图片数据，用于多模态模型
+  }[];  // 历史消息列表
 }
 
 /** Ollama API响应接口 */
@@ -43,6 +47,10 @@ export interface OllamaResponse {
   response: string;
   done: boolean;
   context?: number[]; // 返回的上下文窗口
+  total_duration?: number;
+  load_duration?: number;
+  prompt_eval_duration?: number;
+  eval_duration?: number;
 }
 
 /** Ollama 模型信息接口 */
