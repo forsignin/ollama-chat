@@ -13,6 +13,7 @@ body {
     'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
 }
 
 /* 滚动条样式 */
@@ -44,11 +45,12 @@ body {
 a {
   color: #4080ff;
   text-decoration: none;
-  transition: color 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 a:hover {
   color: #3674ff;
+  transform: translateY(-1px);
 }
 
 /* 代码样式 */
@@ -87,6 +89,9 @@ pre code {
   color: #666;
   box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08),
     0 9px 28px 8px rgba(0, 0, 0, 0.05);
+  padding: 12px 20px !important;
+  border-radius: 8px !important;
+  font-size: 14px !important;
 }
 
 .ant-message-success .anticon {
@@ -114,11 +119,17 @@ pre code {
   code {
     font-size: 0.85em;
   }
+  
+  .ant-message-notice-content {
+    margin: 0 12px;
+    padding: 10px 16px !important;
+  }
 }
 
 /* 布局样式 */
 .app {
   min-height: 100vh;
+  min-height: 100dvh;
 }
 
 .header {
@@ -132,4 +143,57 @@ pre code {
   height: calc(100vh - 64px);
   padding: 0;
   overflow: hidden;
+  
+  @media (max-width: 768px) {
+    height: calc(100vh - 56px);
+  }
+}
+
+/* 下拉菜单样式 */
+.ant-dropdown-menu {
+  padding: 4px !important;
+  border-radius: 8px !important;
+  border: 1px solid #e6e6e6 !important;
+  box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08),
+    0 9px 28px 8px rgba(0, 0, 0, 0.05) !important;
+}
+
+.ant-dropdown-menu-item {
+  padding: 8px 12px !important;
+  border-radius: 4px !important;
+  transition: all 0.3s ease !important;
+  
+  &:hover {
+    background-color: #f5f7fa !important;
+    transform: translateY(-1px);
+  }
+  
+  .anticon {
+    font-size: 16px !important;
+  }
+}
+
+/* Select 下拉框样式 */
+.ant-select-dropdown {
+  padding: 4px !important;
+  border-radius: 8px !important;
+  border: 1px solid #e6e6e6 !important;
+  box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08),
+    0 9px 28px 8px rgba(0, 0, 0, 0.05) !important;
+}
+
+.ant-select-item {
+  padding: 8px 12px !important;
+  border-radius: 4px !important;
+  transition: all 0.3s ease !important;
+  
+  &:hover {
+    background-color: #f5f7fa !important;
+  }
+  
+  &.ant-select-item-option-selected {
+    background-color: #f0f7ff !important;
+    color: #4080ff !important;
+    font-weight: 500 !important;
+  }
 } 

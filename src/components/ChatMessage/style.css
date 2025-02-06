@@ -34,9 +34,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 4px;
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
   background-color: transparent;
   border: 1px solid #e6e6e6;
   transition: all 0.3s ease;
@@ -53,6 +53,7 @@
 .avatar:hover {
   border-color: #4080ff;
   color: #4080ff;
+  transform: translateY(-1px);
 }
 
 .user .avatar {
@@ -69,8 +70,9 @@
 
 .message-content-wrapper {
   flex: 1;
-  max-width: 800px;
+  max-width: 1000px;
   margin: 0 auto;
+  width: 100%;
   
   @media (max-width: 768px) {
     max-width: 100%;
@@ -118,6 +120,7 @@
       padding: 0 !important;
       background: transparent !important;
       color: #000 !important;
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
     }
     
     @media (max-width: 768px) {
@@ -159,6 +162,7 @@
   &:hover {
     color: #4080ff !important;
     background: transparent !important;
+    transform: translateY(-1px);
   }
 }
 
@@ -191,10 +195,12 @@
 
 .message-actions .ant-btn {
   color: #666;
+  transition: all 0.3s ease;
   
   &:hover {
     color: #4080ff;
     background: transparent;
+    transform: translateY(-1px);
   }
   
   @media (max-width: 768px) {
