@@ -247,9 +247,11 @@ export const useChat = () => {
     lastMessageRef.current = null;
   }, []);
 
+  const currentChat = state.chats.find(chat => chat.id === state.currentChatId);
+
   return {
-    chats: state.chats,
-    currentChat: getCurrentChat(),
+    state,
+    currentChat,
     loading: state.loading,
     error: state.error,
     sendMessage,
@@ -257,8 +259,8 @@ export const useChat = () => {
     createNewChat,
     switchChat,
     deleteChat,
-    setModel,
     stopGeneration,
+    setModel,
     resendLastMessage,
   };
 }; 

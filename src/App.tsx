@@ -2,9 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { Typography, message, Layout, Select, Space, Button, Dropdown } from 'antd';
 import type { SelectProps } from 'antd';
 import { ChatWindow } from './components/ChatWindow';
+import { XiaohongshuPreview } from './components/XiaohongshuPreview';
 import { useChat } from './hooks/useChat';
 import { ollamaApi } from './services/ollama';
-import { ModelInfo } from './types/chat';
+import { ModelInfo, Message, Chat } from './types/chat';
+import { markdownToXiaohongshu } from './utils/markdownToXiaohongshu';
 import './App.css';
 import styled from 'styled-components';
 import { 
@@ -15,6 +17,7 @@ import {
   MoreOutlined,
   ClearOutlined,
   MenuOutlined,
+  ExportOutlined,
 } from '@ant-design/icons';
 
 const { Header, Sider, Content } = Layout;
@@ -186,11 +189,11 @@ const ChatItem = styled.div<{ active?: boolean }>`
 `;
 
 const SiderFooter = styled.div`
-  padding: 12px;
+  margin-top: auto;
+  padding: 16px;
   border-top: 1px solid #f0f0f0;
-  color: #999;
-  font-size: 12px;
-  text-align: center;
+  display: flex;
+  justify-content: center;
 `;
 
 const MainContainer = styled(Layout)`
@@ -278,7 +281,7 @@ const ChatContainer = styled(Content)`
 
 const App: React.FC = () => {
   const {
-    chats,
+    state,
     currentChat,
     loading,
     error,
@@ -295,6 +298,9 @@ const App: React.FC = () => {
   const [models, setModels] = useState<ModelInfo[]>([]);
   const [loadingModels, setLoadingModels] = useState(false);
   const [siderVisible, setSiderVisible] = useState(false);
+  const [previewVisible, setPreviewVisible] = useState(false);
+  const [xiaohongshuContent, setXiaohongshuContent] = useState('');
+  const [originalMarkdown, setOriginalMarkdown] = useState('');
 
   // 获取模型列表
   const fetchModels = async () => {
@@ -350,6 +356,43 @@ const App: React.FC = () => {
     e.stopPropagation();
   };
 
+  const handleExportToXiaohongshu = () => {
+    if (!currentChat || currentChat.messages.length === 0) {
+      message.warning('当前对话为空');
+      return;
+    }
+
+    // 获取最新一条AI回复
+    const assistantMessages = currentChat.messages.filter(
+      (msg: Message) => msg.role === 'assistant'
+    );
+
+    if (assistantMessages.length === 0) {
+      message.warning('没有找到AI回复');
+      return;
+    }
+
+    // 获取最新一条消息
+    const latestMessage = assistantMessages[assistantMessages.length - 1];
+    const markdown = latestMessage.content;
+
+    // 保存原始markdown
+    setOriginalMarkdown(markdown);
+    
+    // 转换为小红书格式（默认去掉thinking内容）
+    const xiaohongshuText = markdownToXiaohongshu(markdown, true);
+    setXiaohongshuContent(xiaohongshuText);
+    setPreviewVisible(true);
+  };
+
+  const handlePreviewClose = () => {
+    setPreviewVisible(false);
+  };
+
+  const handleContentChange = (newContent: string) => {
+    setXiaohongshuContent(newContent);
+  };
+
   return (
     <AppContainer>
       <SiderMask visible={siderVisible} onClick={() => setSiderVisible(false)} />
@@ -367,7 +410,7 @@ const App: React.FC = () => {
           </NewChatButton>
         </SiderHeader>
         <ChatList>
-          {chats.map((chat) => (
+          {state.chats.map((chat: Chat) => (
             <ChatItem 
               key={chat.id} 
               active={currentChat?.id === chat.id}
@@ -392,7 +435,15 @@ const App: React.FC = () => {
             </ChatItem>
           ))}
         </ChatList>
-        <SiderFooter />
+        <SiderFooter>
+          <Button 
+            type="default"
+            icon={<ExportOutlined />}
+            onClick={handleExportToXiaohongshu}
+          >
+            转换为小红书格式
+          </Button>
+        </SiderFooter>
       </StyledSider>
       <MainContainer>
         <StyledHeader>
@@ -451,6 +502,13 @@ const App: React.FC = () => {
           )}
         </ChatContainer>
       </MainContainer>
+      <XiaohongshuPreview
+        visible={previewVisible}
+        onClose={handlePreviewClose}
+        content={xiaohongshuContent}
+        originalMarkdown={originalMarkdown}
+        onContentChange={handleContentChange}
+      />
     </AppContainer>
   );
 };
